@@ -33,9 +33,10 @@
                 },
                 body: JSON.stringify(b)
             }).then((res) => res.json())
-            localStorage.setItem('token', result.data)
+            // localStorage.setItem('token', result.data);
+            return res.cookie("token", token, {httpOnly: true})
             console.log('token set to be',result.data);
-        }
+}
 
     </script>
 </body>

@@ -5,18 +5,24 @@ let bodyParser = require('body-parser');
 const User = require('./model/users');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const cookieParser = require('cookie-parser');
 let app = express();
 JWT_SECRET = 'verwvbetryh';
+
+
 
 mongoose.connect('mongodb://localhost:27017/28May', {useNewUrlParser: true});
 var conn = mongoose.connection;
 
+app.use(cookieParser());
 app.use('/', express.static(path.join(__dirname, 'static'))); 
 // '/' isss level pe yeh static wala folder pada hoga
 app.use(bodyParser.json());
 
 app.post('/api/change-password', async (req,res) => {
-    const { token, newpassword: plainTextPassword } = req.body;
+    const {newpassword: plainTextPassword } = req.body;
+    const token = req.cookies.access_token;
+    console.log('line 25');
     try {
 		const user = jwt.verify(token, JWT_SECRET)
         console.log(user);
@@ -37,7 +43,12 @@ app.post('/api/change-password', async (req,res) => {
 	}
 } )
 
-
+app.post('/api/logout', (req,res) => {
+    return res
+    .clearCookie("access_token")
+    .status(200)
+    .json({ message: "Successfully logged out 😏 🍀" });
+})
 
 
 
@@ -49,14 +60,15 @@ app.post('/api/login', async (req,res) => {
     const user = await User.findOne({ username }).lean();
     if (await bcrypt.compare(password, user.password)) {
         const token = jwt.sign({id: user._id, username: user.username}, JWT_SECRET);
-        return res.json({ status: 'ok', data: token })
+        res.cookie("access_token", token, {httpOnly: true})
+        res.json({ status: 'ok', data: token });
         
     }
     else {
         console.log('error')
     }
 
-    res.json({status:'ok'});
+    // res.json({status:'ok'});
 })
 
 
