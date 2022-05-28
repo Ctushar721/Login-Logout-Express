@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h1>Login</h1>
+    <form id="login">
+        <input type="text" id="username" placeholder="Username" />
+        <input type="password" id="password" placeholder="Password" />
+        <input type="submit" value="Submit Form" />
+    </form>
+    <script>
+        const form = document.getElementById("login");
+        form.addEventListener('submit', login); // just passing the function no need for attributes
+
+        async function login(event) {
+            // console.log(event)
+            event.preventDefault()
+            const username = document.getElementById("username").value
+            const password = document.getElementById("password").value
+            //console.log(username)
+            let b = {username,password}
+            // console.log(b);
+            // console.log(JSON.stringify(b));
+            let result = await fetch('/api/login', {
+                method: "POST",
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(b)
+            }).then((res) => res.json())
+            localStorage.setItem('token', result.data)
+            console.log('token set to be',result.data);
+        }
+
+    </script>
+</body>
+</html>
